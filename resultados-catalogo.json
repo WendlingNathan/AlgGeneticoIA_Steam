@@ -1,0 +1,101 @@
+[
+  {
+    "objective": "satisfaction",
+    "milliseconds": 355,
+    "selected": 2727,
+    "candidates": 21592,
+    "free": 2624,
+    "best": {
+      "value": 214311.76939113706,
+      "cost": 9998,
+      "size": 0,
+      "feasible": true
+    },
+    "initial": 214311.76939113706,
+    "greedy": {
+      "value": 214333.80995850786,
+      "cost": 9998,
+      "size": 0
+    },
+    "stats": {
+      "total": 140940,
+      "blockedTags": 1423,
+      "invalid": 1163,
+      "insufficientReviews": 116758,
+      "characteristicsMismatch": 0,
+      "missingMetric": 0,
+      "missingDisk": 0,
+      "tooExpensive": 4,
+      "tooLarge": 0,
+      "freeExcluded": 0,
+      "zeroValue": 0,
+      "duplicates": 0
+    }
+  },
+  {
+    "objective": "positive",
+    "milliseconds": 263,
+    "selected": 2638,
+    "candidates": 21592,
+    "free": 2624,
+    "best": {
+      "value": 34603884,
+      "cost": 9986,
+      "size": 0,
+      "feasible": true
+    },
+    "initial": 34603884,
+    "greedy": {
+      "value": 34625738,
+      "cost": 9986,
+      "size": 0
+    },
+    "stats": {
+      "total": 140940,
+      "blockedTags": 1423,
+      "invalid": 1163,
+      "insufficientReviews": 116758,
+      "characteristicsMismatch": 0,
+      "missingMetric": 0,
+      "missingDisk": 0,
+      "tooExpensive": 4,
+      "tooLarge": 0,
+      "freeExcluded": 0,
+      "zeroValue": 0,
+      "duplicates": 0
+    }
+  },
+  {
+    "objective": "playtime",
+    "milliseconds": 188,
+    "selected": 430,
+    "candidates": 7533,
+    "free": 415,
+    "best": {
+      "value": 48121.48333333331,
+      "cost": 9985,
+      "size": 0,
+      "feasible": true
+    },
+    "initial": 48121.48333333331,
+    "greedy": {
+      "value": 48059.11666666665,
+      "cost": 9983,
+      "size": 0
+    },
+    "stats": {
+      "total": 140940,
+      "blockedTags": 1423,
+      "invalid": 1163,
+      "insufficientReviews": 116758,
+      "characteristicsMismatch": 0,
+      "missingMetric": 0,
+      "missingDisk": 0,
+      "tooExpensive": 4,
+      "tooLarge": 0,
+      "freeExcluded": 0,
+      "zeroValue": 14059,
+      "duplicates": 0
+    }
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "source": "https://www.kaggle.com/datasets/hubertsidorowicz/steam-games-dataset-daily-updates",
+  "version": 54,
+  "date": "2026-09-15",
+  "total": 140940,
+  "withPrice": 139710,
+  "withImage": 140842,
+  "withDisk": 0,
+  "columns": [
+    "app_id",
+    "name",
+    "price_cents",
+    "positive",
+    "negative",
+    "average_playtime_minutes",
+    "header_image",
+    "size_gb",
+    "genres",
+    "categories",
+    "tags",
+    "windows",
+    "mac",
+    "linux"
+  ],
+  "sampling": false
+}

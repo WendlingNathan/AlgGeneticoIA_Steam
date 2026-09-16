@@ -1,0 +1,14 @@
+{
+  "source": "https://www.kaggle.com/datasets/hubertsidorowicz/steam-games-dataset-daily-updates",
+  "version": 54,
+  "date": "2026-09-15",
+  "total": 140940,
+  "valid": 74103,
+  "invalid": 58908,
+  "duplicate": 0,
+  "free": 7929,
+  "sampleSize": 80,
+  "sampling": "Reservoir sampling; semente 42; jogos pagos com avaliações válidas",
+  "currency": "unidades monetárias do CSV; sem conversão para reais",
+  "disk": "Não há coluna de espaço em disco no arquivo steam_games.csv"
+}

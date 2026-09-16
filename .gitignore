@@ -1,0 +1,12 @@
+# Dataset bruto (excede o limite de 100 MB por arquivo do GitHub)
+/dados/steam_games.csv
+
+# Dependencias e arquivos locais/temporarios
+node_modules/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+
