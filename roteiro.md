@@ -11,7 +11,7 @@ Mostre o catálogo de **140.940 registros**. Explique que usamos todas as linhas
 ## 2. Demonstração principal — 2 minutos
 
 1. Informe orçamento de US$ 100 e mantenha os pesos em 5/5/5.
-2. Para mostrar uma lista menor na projeção, desative **Incluir gratuitos**. Diga que isso é um filtro escolhido para a demonstração.
+2. Explique que o site considera somente jogos pagos; gratuitos são excluídos automaticamente.
 3. Clique em **Encontrar jogos** e mostre as capas, o custo e a nota conjunta de cada jogo (0 a 10).
 4. Mude o orçamento para 50, repita e compare a seleção.
 5. Volte a 100 e altere os pesos para 10/2/0. Explique que satisfação passa a ter mais importância, avaliações ainda contribuem e horas são desativadas. A seleção pode mudar.
@@ -43,7 +43,7 @@ Abra **Sobre o projeto**.
 
 Se houver CSV real com `app_id,size_gb`, importe-o e demonstre o limite. Caso contrário, apresente a restrição de orçamento, permitida pelo objetivo ‘e/ou’.
 
-“Sem limite de disco, jogos gratuitos com valor positivo sempre ajudam no nosso objetivo. A soma das notas pode favorecer muitos jogos baratos. A normalização por máximos pode comprimir a contribuição de jogos menos populares. Horas médias não são uma previsão individual de diversão.”
+“Jogos gratuitos não participam da busca. A soma das notas pode favorecer muitos jogos baratos. A normalização por máximos pode comprimir a contribuição de jogos menos populares. Horas médias não são uma previsão individual de diversão.”
 
 ## Preparação final
 

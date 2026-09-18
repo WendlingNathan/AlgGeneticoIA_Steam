@@ -4,7 +4,7 @@
   'use strict';
   function createOptimizer(rows, config) {
     // O mínimo usa o total de avaliações, independentemente do objetivo escolhido.
-    config = { ...config, objective: 'combined', weights: {satisfaction:5,positive:5,playtime:5,...config.weights}, minReviews: 100 };
+    config = { ...config, objective: 'combined', includeFree: false, weights: {satisfaction:5,positive:5,playtime:5,...config.weights}, minReviews: 100 };
     let state = config.seed >>> 0;
     const rng = () => {state += 0x6D2B79F5;let t=state;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};
     const finite = x => typeof x==='number' && Number.isFinite(x) && x>=0;
@@ -28,7 +28,7 @@
       if([[8,config.genre],[9,config.category],[10,config.tag]].some(([column,choice])=>choice&&!(r[column]||[]).includes(choice))){stats.characteristicsMismatch++;continue;}
       if(weights.playtime>0&&!finite(r[5])){stats.missingMetric++;continue;}
       if(config.useDisk&&!finite(r[7])){stats.missingDisk++;continue;}
-      if(!config.includeFree&&r[2]===0){stats.freeExcluded++;continue;}
+      if(r[2]===0){stats.freeExcluded++;continue;}
       if(r[2]>budget){stats.tooExpensive++;continue;}
       const size=config.useDisk?r[7]:0;
       if(size>disk){stats.tooLarge++;continue;}

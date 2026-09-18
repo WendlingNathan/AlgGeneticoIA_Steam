@@ -8,7 +8,7 @@ Abra `index.html` no navegador. Não há instalação, servidor nem biblioteca e
 
 1. Informe o orçamento em US$ (dólares americanos).
 2. Ajuste os três pesos de 0 a 10 e clique em **Encontrar jogos**.
-3. Veja custo, valor, jogos e capas. Use os filtros para mostrar somente pagos ou gratuitos.
+3. Veja custo, valor, jogos e capas. A seleção contém somente jogos pagos.
 4. Abra **Ver evolução e análise do resultado** durante a explicação ao professor.
 5. **Salvar seleção** exporta a moeda USD, parâmetros, histórico, exclusões, dados selecionados e cromossomo completo em JSON.
 
@@ -22,7 +22,7 @@ Fonte: [Steam Games Dataset — Hubert Sidorowicz](https://www.kaggle.com/datase
 - Nenhum registro tem tamanho em disco no CSV original.
 - O catálogo leve tem aproximadamente 55,7 MB: preserva todas as linhas, carregando somente os campos utilizados. O original permanece em `dados/steam_games.csv`, com aproximadamente 953 MB.
 
-O algoritmo examina todas as linhas em cada busca. Um jogo só pode entrar na seleção se tiver pelo menos 100 avaliações totais (positivas + negativas); totais desconhecidos também ficam fora. Esse mínimo vale para qualquer combinação de pesos. Exclui jogos com dados necessários ausentes, valor zero para o objetivo, preço/tamanho individual acima do limite, duplicados ou gratuitos quando o usuário os desativa. A interface informa os motivos e as quantidades. Paginar os cartões não limita os jogos da otimização.
+O algoritmo examina todas as linhas em cada busca. Um jogo só pode entrar na seleção se tiver pelo menos 100 avaliações totais (positivas + negativas); totais desconhecidos também ficam fora. Esse mínimo vale para qualquer combinação de pesos. Exclui jogos com dados necessários ausentes, valor zero para o objetivo, preço/tamanho individual acima do limite, duplicados ou gratuitos. A exclusão de gratuitos é obrigatória, inclusive no limite apenas de disco; eles também não entram na normalização, nas referências de comparação nem nas opções dos filtros. A interface informa os motivos e as quantidades. Paginar os cartões não limita os jogos da otimização.
 
 Os valores numéricos do dataset são exibidos em dólares americanos (US$), sem conversão cambial ou consulta de preços ao vivo. A soma usa centavos inteiros. Campos ausentes permanecem desconhecidos, em vez de receber valores inventados.
 
@@ -60,7 +60,7 @@ Os máximos são calculados após os filtros e restrições individuais, antes d
 
 O cromossomo é logicamente binário: 1 inclui e 0 exclui. Internamente, o AG guarda somente os índices dos bits 1, uma representação esparsa do vetor, para evitar percorrer dezenas de milhares de zeros em cada operação. O JSON exporta o vetor binário de 140.940 posições, na ordem original do catálogo, incluindo zeros para registros inelegíveis.
 
-Jogos com valor positivo que não consomem nenhum recurso limitado entram automaticamente e ficam com bit 1. Por exemplo, um gratuito sem limite de disco sempre agrega valor. Os genes restantes participam da evolução. Esse tratamento preserva a otimização para objetivos aditivos não negativos.
+Jogos gratuitos ficam fora da busca. Os jogos pagos elegíveis participam da evolução e consomem orçamento e/ou espaço em disco conforme os limites ativos.
 
 A população começa com uma solução que contém apenas os jogos fixos, mais construções aleatórias viáveis. Metade visita os jogos em ordem embaralhada; metade usa uma ordenação por valor/recurso com aceitação aleatória. A estratégia gulosa pura é calculada separadamente como referência; não é apresentada como resultado do AG nem inserida diretamente na população.
 
@@ -78,16 +78,16 @@ O cálculo roda em um Web Worker, em segundo plano. O botão Cancelar encerra es
 
 ## Resultados reais de validação
 
-Mínimo de 100 avaliações por jogo, orçamento de US$ 100, gratuitos incluídos, população 60, 150 gerações, 3 inversões esperadas, crossover 80%, semente 42:
+Mínimo de 100 avaliações por jogo, orçamento de US$ 100, somente jogos pagos, população 60, 150 gerações, 3 inversões esperadas, crossover 80%, semente 42:
 
 | Pesos (satisfação / avaliações / horas) | Jogos elegíveis | Selecionados | Custo (US$) | Pontuação do AG |
 |---|---:|---:|---:|---:|
-| 10 / 0 / 0 | 21.592 | 2.727 | 99,98 | 21.431,18 |
-| 0 / 10 / 0 | 21.592 | 2.638 | 99,86 | 45,28 |
-| 0 / 0 / 10 | 7.533 | 430 | 99,85 | 80,28 |
-| 5 / 5 / 5 | 21.592 | 2.727 | 99,98 | 7.165,58 |
+| 10 / 0 / 0 | 18.968 | 103 | 99,98 | 979,18 |
+| 0 / 10 / 0 | 18.968 | 14 | 99,86 | 53,54 |
+| 0 / 0 / 10 | 7.118 | 15 | 99,85 | 50,62 |
+| 5 / 5 / 5 | 18.968 | 103 | 99,98 | 326,59 |
 
-As quantidades grandes vêm dos gratuitos: 2.624 nos dois primeiros objetivos e 415 no terceiro. O algoritmo os considera vantajosos para o objetivo definido. Desativar gratuitos produz um problema diferente, com uma seleção menor.
+Todos os resultados acima contêm apenas jogos pagos. O dataset original é preservado; os gratuitos são descartados antes do cálculo das notas e da otimização.
 
 Nessas execuções, a melhor solução inicial permaneceu a melhor até o final e a referência gulosa obteve valores superiores em satisfação e avaliações positivas; em horas médias, o AG ficou acima. O gráfico mostra tanto melhor solução quanto média da população. Uma linha do melhor indivíduo horizontal é um resultado válido, não uma melhoria inventada. O AG não garante o ótimo global nem superar a estratégia gulosa.
 
