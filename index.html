@@ -6,8 +6,9 @@
 <main class="wrap">
 <section class="search-panel" aria-label="Montar biblioteca"><form id="form"><fieldset id="controls">
 <div class="primary-fields"><label>Seu orçamento <span class="unit">US$</span><input id="budget" type="number" min="0" max="10000000" step="0.01" value="100" required></label>
-<p class="quiet">Combine os três critérios ajustando sua importância abaixo.</p>
+<label>Quantidade de jogos<input id="maxGames" type="number" min="1" step="1" value="10" required aria-describedby="quantityHint"></label>
 <button class="primary" id="run" type="submit">Encontrar jogos <span aria-hidden="true">↗</span></button></div>
+<p class="quiet" id="quantityHint">Selecione até essa quantidade, respeitando seu orçamento e os filtros. O resultado pode conter menos jogos.</p>
 <fieldset class="weight-panel"><legend>O que você quer maximizar? Pesos de 0 a 10</legend><div class="weight-fields"><label>Satisfação<input id="weightSatisfaction" type="number" min="0" max="10" step="1" value="5" required></label><label>Avaliações positivas<input id="weightPositive" type="number" min="0" max="10" step="1" value="5" required></label><label>Horas médias jogadas<input id="weightPlaytime" type="number" min="0" max="10" step="1" value="5" required></label></div><p class="quiet">Quanto maior o peso, maior a importância. Zero desativa o critério. Escolha pelo menos um peso positivo. Cada jogo recebe uma nota conjunta de 0 a 10; buscamos maximizar a soma dessas notas.</p></fieldset>
 <div class="characteristic-fields"><label>Gênero<select id="genre"><option value="">Todos os gêneros</option></select></label><label>Categoria / recurso<select id="category"><option value="">Todas as categorias</option></select></label><label>Tag / estilo<select id="tag"><option value="">Todas as tags</option></select></label></div>
 <p class="quiet">Combine os filtros para buscar seu tipo de jogo. Os nomes seguem o dataset.</p>

@@ -10,7 +10,7 @@ Mostre o catálogo de **140.940 registros**. Explique que usamos todas as linhas
 
 ## 2. Demonstração principal — 2 minutos
 
-1. Informe orçamento de US$ 100 e mantenha os pesos em 5/5/5.
+1. Informe orçamento de US$ 100, quantidade de jogos 10 e mantenha os pesos em 5/5/5. Explique que a quantidade é um limite máximo; orçamento, filtros e otimização podem produzir uma lista menor.
 2. Explique que o site considera somente jogos pagos; gratuitos são excluídos automaticamente.
 3. Clique em **Encontrar jogos** e mostre as capas, o custo e a nota conjunta de cada jogo (0 a 10).
 4. Mude o orçamento para 50, repita e compare a seleção.

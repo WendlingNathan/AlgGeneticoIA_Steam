@@ -7,6 +7,7 @@ Seleção de um conjunto de jogos da Steam respeitando orçamento e/ou espaço e
 Abra `index.html` no navegador. Não há instalação, servidor nem biblioteca externa. A busca funciona offline; as capas precisam de internet. Também funciona pelo Live Server do VS Code.
 
 1. Informe o orçamento em US$ (dólares americanos).
+   Defina também a **Quantidade de jogos** (padrão: 10). É um limite máximo da seleção completa, não apenas dos cartões exibidos por página. O AG, a referência gulosa e a população inicial respeitam esse limite junto com orçamento e disco. A busca pode retornar menos jogos e não garante preencher todas as vagas. A quantidade deve ser um inteiro maior que zero e acompanha o JSON exportado.
 2. Ajuste os três pesos de 0 a 10 e clique em **Encontrar jogos**.
 3. Veja custo, valor, jogos e capas. A seleção contém somente jogos pagos.
 4. Abra **Ver evolução e análise do resultado** durante a explicação ao professor.
@@ -79,6 +80,7 @@ O cálculo roda em um Web Worker, em segundo plano. O botão Cancelar encerra es
 ## Resultados reais de validação
 
 Mínimo de 100 avaliações por jogo, orçamento de US$ 100, somente jogos pagos, população 60, 150 gerações, 3 inversões esperadas, crossover 80%, semente 42:
+Os resultados da tabela usam quantidade máxima igual ao tamanho do catálogo para comparação histórica; a interface usa 10 por padrão.
 
 | Pesos (satisfação / avaliações / horas) | Jogos elegíveis | Selecionados | Custo (US$) | Pontuação do AG |
 |---|---:|---:|---:|---:|

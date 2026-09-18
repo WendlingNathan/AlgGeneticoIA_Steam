@@ -4,11 +4,12 @@
   'use strict';
   function createOptimizer(rows, config) {
     // O mínimo usa o total de avaliações, independentemente do objetivo escolhido.
-    config = { ...config, objective: 'combined', includeFree: false, weights: {satisfaction:5,positive:5,playtime:5,...config.weights}, minReviews: 100 };
+    config = { maxGames: Math.max(1,rows.length), ...config, objective: 'combined', includeFree: false, weights: {satisfaction:5,positive:5,playtime:5,...config.weights}, minReviews: 100 };
     let state = config.seed >>> 0;
     const rng = () => {state += 0x6D2B79F5;let t=state;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;};
     const finite = x => typeof x==='number' && Number.isFinite(x) && x>=0;
     if(!Number.isInteger(config.population)||config.population<4||config.population>300||!Number.isInteger(config.generations)||config.generations<1||config.generations>1000||!Number.isInteger(config.seed)||config.seed<0||config.seed>4294967295||!finite(config.crossover)||config.crossover>1||!finite(config.flips)||config.flips>100||(!config.useBudget&&!config.useDisk)||(config.useBudget&&(!Number.isSafeInteger(config.budget)||config.budget<0))||(config.useDisk&&(!finite(config.disk)||config.disk<=0)))throw new Error('Confira os limites e as configurações.');
+    if(!Number.isSafeInteger(config.maxGames)||config.maxGames<1)throw new Error('A quantidade de jogos deve ser um número inteiro maior que zero.');
     const weights=config.weights;
     if(Object.values(weights).some(w=>!finite(w)||w>10))throw new Error('Os pesos devem estar entre 0 e 10.');
     const weightSum=weights.satisfaction+weights.positive+weights.playtime;
@@ -46,17 +47,17 @@
       if(value<=0){stats.zeroValue++;continue;}
       scores[index]=value;
       const game={...candidate,value},size=game.size;
-      // Com valor positivo e sem consumir recursos ativos, incluir é sempre vantajoso.
-      if((!config.useBudget||game.price===0)&&(!config.useDisk||size===0)){fixed.push(index);fixedValue+=value;fixedCost+=game.price;fixedDisk+=size;}
-      else eligible.push(game);
+      // Cada jogo ocupa uma vaga, mesmo se não consumir os outros recursos.
+      eligible.push(game);
+
     }
     const n=eligible.length;
     const mutationRate=n?Math.min(1,config.flips/n):0;
     const maxValue=eligible.reduce((s,g)=>s+g.value,0)+fixedValue+1;
-    function evaluate(genes){let cost=fixedCost,size=fixedDisk,value=fixedValue;for(const i of genes){const g=eligible[i];cost+=g.price;size+=g.size;value+=g.value;}const excess=(config.useBudget?Math.max(0,cost-budget)/Math.max(1,budget):0)+(config.useDisk?Math.max(0,size-disk)/Math.max(1,disk):0);return {genes,cost,size,value,fitness:excess?value-maxValue*(1+excess):value,feasible:!excess};}
+    function evaluate(genes){let cost=fixedCost,size=fixedDisk,value=fixedValue;for(const i of genes){const g=eligible[i];cost+=g.price;size+=g.size;value+=g.value;}const excess=(config.useBudget?Math.max(0,cost-budget)/Math.max(1,budget):0)+(config.useDisk?Math.max(0,size-disk)/Math.max(1,disk):0)+Math.max(0,genes.length-config.maxGames)/config.maxGames;return {genes,cost,size,value,fitness:excess?value-maxValue*(1+excess):value,feasible:!excess};}
     const fits=(cost,size,g)=>cost+g.price<=budget&&size+g.size<=disk;
-    function repair(genes){let value=evaluate(genes);if(value.feasible)return value;const shuffled=genes.slice();for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}while(shuffled.length&&(value.cost>budget||value.size>disk)){const g=eligible[shuffled.pop()];value.cost-=g.price;value.size-=g.size;}shuffled.sort((a,b)=>a-b);return evaluate(shuffled);}
-    function construct(order,probability=1){const genes=[];let cost=fixedCost,size=fixedDisk;for(const i of order){const g=eligible[i];if(fits(cost,size,g)&&(probability===1||rng()<probability)){genes.push(i);cost+=g.price;size+=g.size;}}genes.sort((a,b)=>a-b);return evaluate(genes);}
+    function repair(genes){let value=evaluate(genes);if(value.feasible)return value;const shuffled=genes.slice();for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}while(shuffled.length&&(value.cost>budget||value.size>disk||shuffled.length>config.maxGames)){const g=eligible[shuffled.pop()];value.cost-=g.price;value.size-=g.size;}shuffled.sort((a,b)=>a-b);return evaluate(shuffled);}
+    function construct(order,probability=1){const genes=[];let cost=fixedCost,size=fixedDisk;for(const i of order){if(genes.length>=config.maxGames)break;const g=eligible[i];if(fits(cost,size,g)&&(probability===1||rng()<probability)){genes.push(i);cost+=g.price;size+=g.size;}}genes.sort((a,b)=>a-b);return evaluate(genes);}
     const order=Array.from({length:n},(_,i)=>i);
     const density=g=>g.value/Math.max(1e-12,(config.useBudget?g.price/Math.max(1,budget):0)+(config.useDisk?g.size/Math.max(1,disk):0));
     const ranked=order.slice().sort((a,b)=>density(eligible[b])-density(eligible[a]));
