@@ -38,7 +38,7 @@ Compare o resultado com a referência por valor/recurso e a melhor combinação 
 
 Abra **Sobre o projeto**.
 
-“As capas e métricas vêm do dataset. O preço é demonstrativo em R$, sem conversão cambial dos valores da base. O arquivo não informa espaço em disco; nosso sistema aceita dados complementares, mas não inventa tamanhos.”
+“As capas e métricas vêm do dataset. Os preços são exibidos em dólares americanos (US$), sem conversão cambial nem consulta de preços ao vivo. O arquivo não informa espaço em disco; nosso sistema aceita dados complementares, mas não inventa tamanhos.”
 
 Se houver CSV real com `app_id,size_gb`, importe-o e demonstre o limite. Caso contrário, apresente a restrição de orçamento, permitida pelo objetivo ‘e/ou’.
 

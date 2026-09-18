@@ -6,11 +6,11 @@ Seleção de um conjunto de jogos da Steam respeitando orçamento e/ou espaço e
 
 Abra `index.html` no navegador. Não há instalação, servidor nem biblioteca externa. A busca funciona offline; as capas precisam de internet. Também funciona pelo Live Server do VS Code.
 
-1. Informe o orçamento em R$ (valores demonstrativos).
+1. Informe o orçamento em US$ (dólares americanos).
 2. Escolha o objetivo e clique em **Encontrar jogos**.
 3. Veja custo, valor, jogos e capas. Use os filtros para mostrar somente pagos ou gratuitos.
 4. Abra **Ver evolução e análise do resultado** durante a explicação ao professor.
-5. **Salvar seleção** exporta parâmetros, histórico, exclusões, dados selecionados e cromossomo completo em JSON.
+5. **Salvar seleção** exporta a moeda USD, parâmetros, histórico, exclusões, dados selecionados e cromossomo completo em JSON.
 
 ## Catálogo completo
 
@@ -24,7 +24,7 @@ Fonte: [Steam Games Dataset — Hubert Sidorowicz](https://www.kaggle.com/datase
 
 O algoritmo examina todas as linhas em cada busca. Um jogo só pode entrar na seleção se tiver pelo menos 100 avaliações totais (positivas + negativas); totais desconhecidos também ficam fora. Esse mínimo vale para os três objetivos. Exclui jogos com dados necessários ausentes, valor zero para o objetivo, preço/tamanho individual acima do limite, duplicados ou gratuitos quando o usuário os desativa. A interface informa os motivos e as quantidades. Paginar os cartões não limita os jogos da otimização.
 
-Os valores numéricos do dataset são exibidos como preços demonstrativos em R$, sem conversão cambial ou consulta de preços brasileiros ao vivo. A soma usa centavos inteiros. Campos ausentes permanecem desconhecidos, em vez de receber valores inventados.
+Os valores numéricos do dataset são exibidos em dólares americanos (US$), sem conversão cambial ou consulta de preços ao vivo. A soma usa centavos inteiros. Campos ausentes permanecem desconhecidos, em vez de receber valores inventados.
 
 ## Espaço em disco
 
@@ -72,9 +72,9 @@ O cálculo roda em um Web Worker, em segundo plano. O botão Cancelar encerra es
 
 ## Resultados reais de validação
 
-Mínimo de 100 avaliações por jogo, orçamento 100 R$, gratuitos incluídos, população 60, 150 gerações, 3 inversões esperadas, crossover 80%, semente 42:
+Mínimo de 100 avaliações por jogo, orçamento de US$ 100, gratuitos incluídos, população 60, 150 gerações, 3 inversões esperadas, crossover 80%, semente 42:
 
-| Objetivo | Jogos elegíveis | Selecionados | Custo (R$) | Valor do AG |
+| Objetivo | Jogos elegíveis | Selecionados | Custo (US$) | Valor do AG |
 |---|---:|---:|---:|---:|
 | Satisfação | 21.592 | 2.727 | 99,98 | 214.311,77 |
 | Positivas | 21.592 | 2.638 | 99,86 | 34.603.884 |

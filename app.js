@@ -32,7 +32,7 @@ $('cancel').addEventListener('click',()=>stop('Busca cancelada. Ajuste os limite
 function render(){
   $('results').hidden=false;const {config,best}=last;
   $('count').textContent=fmt(last.selected.length,0);$('cost').textContent=fmt(best.cost/100);$('score').textContent=fmt(best.value,config.objective==='positive'?0:2);$('valueLabel').textContent=labels[config.objective];
-  $('remainingLabel').textContent=config.useBudget?'Saldo · R$':'Espaço utilizado · GB';$('remaining').textContent=fmt(config.useBudget?(config.budget-best.cost)/100:best.size);
+  $('remainingLabel').textContent=config.useBudget?'Saldo · US$':'Espaço utilizado · GB';$('remaining').textContent=fmt(config.useBudget?(config.budget-best.cost)/100:best.size);
   const freeCount=last.selected.filter(i=>rows[i][2]===0).length;
   $('resultNote').textContent=`${fmt(last.selected.length-freeCount,0)} jogos pagos e ${fmt(freeCount,0)} gratuitos. ${config.useDisk?`Espaço: ${fmt(best.size)} de ${fmt(config.disk)} GB. `:''}Objetivo: ${labels[config.objective].toLowerCase()}. Semente ${config.seed}.`;
   $('search').value='';$('showType').value='all';updateGames();drawChart();
@@ -57,7 +57,7 @@ function renderPage(){
     if(/^https:\/\//.test(r[6])){const img=document.createElement('img');img.className='cover';img.src=r[6];img.alt=`Capa de ${r[1]}`;img.loading='lazy';img.referrerPolicy='no-referrer';img.addEventListener('error',()=>img.replaceWith(fallback()),{once:true});card.append(img);}else card.append(fallback());
     const info=document.createElement('div');info.className='game-info';const h=document.createElement('h3');h.title=r[1];
     if(/^\d+$/.test(String(r[0]))){const a=document.createElement('a');a.href=`https://store.steampowered.com/app/${r[0]}/`;a.target='_blank';a.rel='noopener';a.textContent=r[1];h.append(a);}else h.textContent=r[1];info.append(h);
-    const meta=document.createElement('div');meta.className='game-meta';const price=document.createElement('strong');price.textContent=r[2]===0?'Gratuito':`R$ ${fmt(r[2]/100)}`;const metric=document.createElement('span');
+    const meta=document.createElement('div');meta.className='game-meta';const price=document.createElement('strong');price.textContent=r[2]===0?'Gratuito':`US$ ${fmt(r[2]/100)}`;const metric=document.createElement('span');
     metric.textContent=last.config.objective==='positive'?`${fmt(r[3],0)} positivas`:last.config.objective==='playtime'?`${fmt(r[5]/60)} h em média`:`${fmt(100*r[3]/(r[3]+r[4]),0)}% de aprovação`;meta.append(price,metric);info.append(meta);
     const extra=document.createElement('p');extra.className='game-secondary';extra.textContent=`${r[3]!==null&&r[4]!==null?fmt(r[3]+r[4],0)+' avaliações':'Avaliações não informadas'}${r[7]!==null?' · '+fmt(r[7])+' GB':''}`;info.append(extra);appendCharacteristics(info,r);card.append(info);$('games').append(card);
   }
@@ -66,7 +66,7 @@ function renderPage(){
 }
 $('search').addEventListener('input',updateGames);$('showType').addEventListener('change',updateGames);$('previous').addEventListener('click',()=>{page--;renderPage();});$('next').addEventListener('click',()=>{page++;renderPage();});
 function drawChart(){const ctx=$('chart').getContext('2d'),h=last.history;ctx.clearRect(0,0,1100,360);const values=h.flatMap(x=>[x.best,x.mean]),min=Math.min(...values),max=Math.max(...values),padding=Math.max(1,(max-min)*.15),low=Math.max(0,min-padding),high=max+padding;ctx.font='20px system-ui';for(let i=0;i<=4;i++){const y=290-i*60;ctx.strokeStyle='#344149';ctx.beginPath();ctx.moveTo(170,y);ctx.lineTo(1060,y);ctx.stroke();ctx.fillStyle='#a6b6bf';ctx.fillText(fmt(low+(high-low)*i/4,0),12,y+6);}ctx.fillText('0',170,325);ctx.fillText('Geração',530,340);ctx.fillText(h.at(-1).generation,1000,325);for(const [key,color] of [['mean','#8faee9'],['best','#a8efc2']]){ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();h.forEach((v,i)=>{const x=170+i/(h.length-1)*890,y=290-(v[key]-low)/(high-low)*240;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.stroke();}}
-$('download').addEventListener('click',()=>{if(!last)return;const selectedSet=new Set(last.selected);const output={...last,source:STEAM_CATALOG.meta,chromosome:rows.map((_,i)=>selectedSet.has(i)?1:0).join(''),selected:last.selected.map(i=>Object.fromEntries(STEAM_CATALOG.meta.columns.map((name,j)=>[name,rows[i][j]])))};const url=URL.createObjectURL(new Blob([JSON.stringify(output,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='minha-biblioteca-steam.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+$('download').addEventListener('click',()=>{if(!last)return;const selectedSet=new Set(last.selected);const output={...last,currency:'USD',source:STEAM_CATALOG.meta,chromosome:rows.map((_,i)=>selectedSet.has(i)?1:0).join(''),selected:last.selected.map(i=>Object.fromEntries(STEAM_CATALOG.meta.columns.map((name,j)=>[name,rows[i][j]])))};const url=URL.createObjectURL(new Blob([JSON.stringify(output,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='minha-biblioteca-steam.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
 $('diskFile').addEventListener('change',async event=>{
   const file=event.target.files[0];if(!file)return;
   busy=true;$('controls').disabled=true;
