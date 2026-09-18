@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id),fmt=(n,d=2)=>Number(n).toLocaleString('pt-BR',{maximumFractionDigits:d,minimumFractionDigits:d});
 const rows=STEAM_CATALOG.rows;
-const labels={satisfaction:'Satisfação somada',positive:'Avaliações positivas',playtime:'Horas médias somadas'};
+const labels={combined:'Pontuação conjunta somada'};
 let last=null,worker=null,page=0,visible=[],busy=false;
 for(const [id,column] of [['genre',8],['category',9],['tag',10]]){
   const choices=new Set();for(const r of rows){if((r[10]||[]).some(tag=>['nsfw','hentai'].includes(String(tag).trim().toLowerCase())))continue;for(const value of r[column]||[])choices.add(value);}
@@ -9,7 +9,7 @@ for(const [id,column] of [['genre',8],['category',9],['tag',10]]){
 }
 $('catalogCount').textContent=`${fmt(rows.length,0)} jogos no catálogo`;
 $('dataExplanation').textContent=`Usamos todos os ${fmt(rows.length,0)} registros do Steam Games Dataset, versão ${STEAM_CATALOG.meta.version}, sem uma amostra reduzida. Só participam jogos com pelo menos 100 avaliações totais (positivas + negativas), dados necessários disponíveis e dentro dos seus filtros. O resumo de exclusões fica na análise do resultado.`;
-function settings(){return {genre:$('genre').value,category:$('category').value,tag:$('tag').value,budget:Math.round(Number($('budget').value)*100),useBudget:$('useBudget').checked,disk:Number($('disk').value),useDisk:$('useDisk').checked,includeFree:$('free').checked,objective:$('objective').value,population:Number($('population').value),generations:Number($('generations').value),flips:Number($('flips').value),crossover:Number($('crossover').value)/100,seed:Number($('seed').value)};}
+function settings(){return {genre:$('genre').value,category:$('category').value,tag:$('tag').value,budget:Math.round(Number($('budget').value)*100),useBudget:$('useBudget').checked,disk:Number($('disk').value),useDisk:$('useDisk').checked,includeFree:$('free').checked,weights:{satisfaction:Number($('weightSatisfaction').value),positive:Number($('weightPositive').value),playtime:Number($('weightPlaytime').value)},objective:'combined',population:Number($('population').value),generations:Number($('generations').value),flips:Number($('flips').value),crossover:Number($('crossover').value)/100,seed:Number($('seed').value)};}
 function locked(value){busy=value;$('controls').disabled=value;$('cancel').hidden=!value;$('progress').hidden=!value;$('download').disabled=value;}
 function invalidate(){if(last){$('status').textContent='Preferências alteradas. Clique em Encontrar jogos para atualizar a seleção.';$('results').hidden=true;last=null;}}
 $('form').addEventListener('input',event=>{if(event.target.id!=='diskFile')invalidate();});
@@ -20,6 +20,7 @@ const workerSource=`const createOptimizer=${createOptimizer.toString()};onmessag
 $('form').addEventListener('submit',event=>{
   event.preventDefault();if(busy||!$('form').reportValidity())return;
   const config=settings();if(!config.useBudget&&!config.useDisk){$('status').textContent='Ative pelo menos um limite: orçamento ou espaço em disco.';return;}
+  if(Object.values(config.weights).every(w=>w===0)){$('status').textContent='Escolha pelo menos um peso maior que zero.';return;}
   invalidate();locked(true);$('status').textContent='Preparando o catálogo completo…';$('progress').max=config.generations;$('progress').value=0;
   const url=URL.createObjectURL(new Blob([workerSource],{type:'text/javascript'}));
   try{worker=new Worker(url);}catch(error){URL.revokeObjectURL(url);locked(false);$('status').textContent=`Não foi possível iniciar a busca: ${error.message}`;return;}URL.revokeObjectURL(url);
@@ -34,7 +35,7 @@ function render(){
   $('count').textContent=fmt(last.selected.length,0);$('cost').textContent=fmt(best.cost/100);$('score').textContent=fmt(best.value,config.objective==='positive'?0:2);$('valueLabel').textContent=labels[config.objective];
   $('remainingLabel').textContent=config.useBudget?'Saldo · US$':'Espaço utilizado · GB';$('remaining').textContent=fmt(config.useBudget?(config.budget-best.cost)/100:best.size);
   const freeCount=last.selected.filter(i=>rows[i][2]===0).length;
-  $('resultNote').textContent=`${fmt(last.selected.length-freeCount,0)} jogos pagos e ${fmt(freeCount,0)} gratuitos. ${config.useDisk?`Espaço: ${fmt(best.size)} de ${fmt(config.disk)} GB. `:''}Objetivo: ${labels[config.objective].toLowerCase()}. Semente ${config.seed}.`;
+  $('resultNote').textContent=`${fmt(last.selected.length-freeCount,0)} jogos pagos e ${fmt(freeCount,0)} gratuitos. ${config.useDisk?`Espaço: ${fmt(best.size)} de ${fmt(config.disk)} GB. `:''}Pesos: satisfação ${config.weights.satisfaction}, avaliações ${config.weights.positive}, horas ${config.weights.playtime}. Total: soma das notas de 0 a 10 por jogo. Semente ${config.seed}.`;
   $('search').value='';$('showType').value='all';updateGames();drawChart();
   $('comparison').replaceChildren();for(const [name,r] of [['Algoritmo Genético',last.best],['Seleção por valor / recurso',last.greedy],['Melhor combinação aleatória inicial',last.random]]){const tr=document.createElement('tr');[name,fmt(r.value),fmt(r.cost/100)].forEach(text=>{const td=document.createElement('td');td.textContent=text;tr.append(td);});$('comparison').append(tr);}
   const s=last.stats;
@@ -58,7 +59,7 @@ function renderPage(){
     const info=document.createElement('div');info.className='game-info';const h=document.createElement('h3');h.title=r[1];
     if(/^\d+$/.test(String(r[0]))){const a=document.createElement('a');a.href=`https://store.steampowered.com/app/${r[0]}/`;a.target='_blank';a.rel='noopener';a.textContent=r[1];h.append(a);}else h.textContent=r[1];info.append(h);
     const meta=document.createElement('div');meta.className='game-meta';const price=document.createElement('strong');price.textContent=r[2]===0?'Gratuito':`US$ ${fmt(r[2]/100)}`;const metric=document.createElement('span');
-    metric.textContent=last.config.objective==='positive'?`${fmt(r[3],0)} positivas`:last.config.objective==='playtime'?`${fmt(r[5]/60)} h em média`:`${fmt(100*r[3]/(r[3]+r[4]),0)}% de aprovação`;meta.append(price,metric);info.append(meta);
+    metric.textContent=`Nota ${fmt(last.selectedScores.find(s=>s.index===index).score)} / 10`;meta.append(price,metric);info.append(meta);
     const extra=document.createElement('p');extra.className='game-secondary';extra.textContent=`${r[3]!==null&&r[4]!==null?fmt(r[3]+r[4],0)+' avaliações':'Avaliações não informadas'}${r[7]!==null?' · '+fmt(r[7])+' GB':''}`;info.append(extra);appendCharacteristics(info,r);card.append(info);$('games').append(card);
   }
   if(!visible.length){const p=document.createElement('p');p.className='empty';p.textContent='Nenhum jogo encontrado com estes limites ou filtros.';$('games').append(p);}

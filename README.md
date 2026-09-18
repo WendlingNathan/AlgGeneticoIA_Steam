@@ -1,13 +1,13 @@
 # Steam Select
 
-Seleção de um conjunto de jogos da Steam respeitando orçamento e/ou espaço em disco, para maximizar avaliações positivas, satisfação ou horas médias jogadas.
+Seleção de um conjunto de jogos da Steam respeitando orçamento e/ou espaço em disco, para maximizar uma pontuação conjunta de avaliações positivas, satisfação e horas médias jogadas.
 
 ## Executar
 
 Abra `index.html` no navegador. Não há instalação, servidor nem biblioteca externa. A busca funciona offline; as capas precisam de internet. Também funciona pelo Live Server do VS Code.
 
 1. Informe o orçamento em US$ (dólares americanos).
-2. Escolha o objetivo e clique em **Encontrar jogos**.
+2. Ajuste os três pesos de 0 a 10 e clique em **Encontrar jogos**.
 3. Veja custo, valor, jogos e capas. Use os filtros para mostrar somente pagos ou gratuitos.
 4. Abra **Ver evolução e análise do resultado** durante a explicação ao professor.
 5. **Salvar seleção** exporta a moeda USD, parâmetros, histórico, exclusões, dados selecionados e cromossomo completo em JSON.
@@ -22,7 +22,7 @@ Fonte: [Steam Games Dataset — Hubert Sidorowicz](https://www.kaggle.com/datase
 - Nenhum registro tem tamanho em disco no CSV original.
 - O catálogo leve tem aproximadamente 55,7 MB: preserva todas as linhas, carregando somente os campos utilizados. O original permanece em `dados/steam_games.csv`, com aproximadamente 953 MB.
 
-O algoritmo examina todas as linhas em cada busca. Um jogo só pode entrar na seleção se tiver pelo menos 100 avaliações totais (positivas + negativas); totais desconhecidos também ficam fora. Esse mínimo vale para os três objetivos. Exclui jogos com dados necessários ausentes, valor zero para o objetivo, preço/tamanho individual acima do limite, duplicados ou gratuitos quando o usuário os desativa. A interface informa os motivos e as quantidades. Paginar os cartões não limita os jogos da otimização.
+O algoritmo examina todas as linhas em cada busca. Um jogo só pode entrar na seleção se tiver pelo menos 100 avaliações totais (positivas + negativas); totais desconhecidos também ficam fora. Esse mínimo vale para qualquer combinação de pesos. Exclui jogos com dados necessários ausentes, valor zero para o objetivo, preço/tamanho individual acima do limite, duplicados ou gratuitos quando o usuário os desativa. A interface informa os motivos e as quantidades. Paginar os cartões não limita os jogos da otimização.
 
 Os valores numéricos do dataset são exibidos em dólares americanos (US$), sem conversão cambial ou consulta de preços ao vivo. A soma usa centavos inteiros. Campos ausentes permanecem desconhecidos, em vez de receber valores inventados.
 
@@ -42,13 +42,19 @@ Ao ativar o limite, apenas jogos com tamanho informado podem participar. É poss
 
 ## Modelagem do AG
 
-### Objetivos
+### Pontuação conjunta
 
-- Satisfação: soma de `100 × positivas / (positivas + negativas)`.
-- Avaliações positivas: soma das contagens `positive`.
-- Horas médias: soma de `average_playtime_forever / 60` (o campo de origem está em minutos).
+O usuário define pesos de 0 a 10 para satisfação, avaliações positivas e horas médias. O padrão é 5/5/5. Cada jogo recebe três notas normalizadas:
 
-São três objetivos alternativos. A satisfação somada não é a média da biblioteca e pode favorecer muitos jogos baratos com poucas avaliações. Horas somadas não preveem o tempo que o usuário jogará. Essas limitações fazem parte da análise acadêmica.
+- `S = 10 × positivas / (positivas + negativas)`.
+- `A = 10 × positivas / máximo de positivas entre os jogos elegíveis`.
+- `H = 10 × minutos médios / máximo de minutos médios entre os jogos elegíveis`.
+
+`Nota = (pesoS × S + pesoA × A + pesoH × H) / (pesoS + pesoA + pesoH)`.
+
+A nota de cada jogo fica entre 0 e 10. O AG maximiza a soma dessas notas na biblioteca; o total pode ultrapassar 10. Peso zero desativa o critério. Se todos forem zero, a interface e o motor pedem ao menos um peso positivo antes de calcular. Se um máximo for zero, a respectiva nota é zero, sem divisão por zero. Horas desconhecidas excluem o jogo apenas quando o peso de horas é positivo; o mínimo de 100 avaliações continua obrigatório.
+
+Os máximos são calculados após os filtros e restrições individuais, antes de descartar notas zero. Mudar filtros ou limites pode alterar a escala; compare métodos dentro da mesma execução. A normalização linear pode comprimir notas de jogos menos populares quando existem valores extremos. A soma pode favorecer muitos jogos baratos; horas registradas não preveem diversão individual. Pesos e máximos de normalização, além das notas individuais, acompanham a exportação JSON.
 
 ### Cromossomo e população inicial
 
@@ -74,11 +80,12 @@ O cálculo roda em um Web Worker, em segundo plano. O botão Cancelar encerra es
 
 Mínimo de 100 avaliações por jogo, orçamento de US$ 100, gratuitos incluídos, população 60, 150 gerações, 3 inversões esperadas, crossover 80%, semente 42:
 
-| Objetivo | Jogos elegíveis | Selecionados | Custo (US$) | Valor do AG |
+| Pesos (satisfação / avaliações / horas) | Jogos elegíveis | Selecionados | Custo (US$) | Pontuação do AG |
 |---|---:|---:|---:|---:|
-| Satisfação | 21.592 | 2.727 | 99,98 | 214.311,77 |
-| Positivas | 21.592 | 2.638 | 99,86 | 34.603.884 |
-| Horas médias | 7.533 | 430 | 99,85 | 48.121,48 h |
+| 10 / 0 / 0 | 21.592 | 2.727 | 99,98 | 21.431,18 |
+| 0 / 10 / 0 | 21.592 | 2.638 | 99,86 | 45,28 |
+| 0 / 0 / 10 | 7.533 | 430 | 99,85 | 80,28 |
+| 5 / 5 / 5 | 21.592 | 2.727 | 99,98 | 7.165,58 |
 
 As quantidades grandes vêm dos gratuitos: 2.624 nos dois primeiros objetivos e 415 no terceiro. O algoritmo os considera vantajosos para o objetivo definido. Desativar gratuitos produz um problema diferente, com uma seleção menor.
 
@@ -94,7 +101,7 @@ Resultados completos: `resultados-catalogo.json`. Rode `node testes-catalogo.cjs
 - `ga.js`: leitura incremental de CSV.
 - `catalogo.js`: catálogo completo preparado para o navegador.
 - `preparar-catalogo.cjs`: reconstrói o catálogo lendo o original por partes; execute `node preparar-catalogo.cjs dados/steam_games.csv`.
-- `testes-catalogo.cjs`: testes do modelo com exemplos pequenos e os três objetivos no catálogo inteiro.
+- `testes-catalogo.cjs`: testes do modelo com exemplos pequenos e pesos isolados e combinados no catálogo inteiro.
 - `roteiro.md`: apoio para a apresentação.
 - `legado/`: arquivos da primeira versão com amostra, sem uso na página atual.
 
@@ -104,7 +111,7 @@ Resultados completos: `resultados-catalogo.json`. Rode `node testes-catalogo.cjs
 
 **Título:** Seleção otimizada de jogos da Steam com Algoritmo Genético.
 
-**Descrição:** Selecionar jogos respeitando orçamento e/ou espaço em disco para maximizar avaliações positivas, satisfação ou horas médias jogadas, com interface HTML para demonstrar o AG e seus resultados.
+**Descrição:** Selecionar jogos respeitando orçamento e/ou espaço em disco para maximizar uma pontuação conjunta de avaliações positivas, satisfação e horas médias jogadas, com interface HTML para demonstrar o AG e seus resultados.
 
 
 ## Busca por características

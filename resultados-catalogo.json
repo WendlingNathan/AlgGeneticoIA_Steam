@@ -1,19 +1,28 @@
 [
   {
     "objective": "satisfaction",
-    "milliseconds": 355,
+    "weights": {
+      "satisfaction": 10,
+      "positive": 0,
+      "playtime": 0
+    },
+    "normalization": {
+      "positive": 7642084,
+      "playtime": 359665
+    },
+    "milliseconds": 344,
     "selected": 2727,
     "candidates": 21592,
     "free": 2624,
     "best": {
-      "value": 214311.76939113706,
+      "value": 21431.176939113662,
       "cost": 9998,
       "size": 0,
       "feasible": true
     },
-    "initial": 214311.76939113706,
+    "initial": 21431.176939113662,
     "greedy": {
-      "value": 214333.80995850786,
+      "value": 21433.380995850745,
       "cost": 9998,
       "size": 0
     },
@@ -34,19 +43,28 @@
   },
   {
     "objective": "positive",
-    "milliseconds": 263,
+    "weights": {
+      "satisfaction": 0,
+      "positive": 10,
+      "playtime": 0
+    },
+    "normalization": {
+      "positive": 7642084,
+      "playtime": 359665
+    },
+    "milliseconds": 270,
     "selected": 2638,
     "candidates": 21592,
     "free": 2624,
     "best": {
-      "value": 34603884,
+      "value": 45.28069045040589,
       "cost": 9986,
       "size": 0,
       "feasible": true
     },
-    "initial": 34603884,
+    "initial": 45.28069045040589,
     "greedy": {
-      "value": 34625738,
+      "value": 45.30928736192899,
       "cost": 9986,
       "size": 0
     },
@@ -67,19 +85,28 @@
   },
   {
     "objective": "playtime",
-    "milliseconds": 188,
+    "weights": {
+      "satisfaction": 0,
+      "positive": 0,
+      "playtime": 10
+    },
+    "normalization": {
+      "positive": 7642084,
+      "playtime": 359665
+    },
+    "milliseconds": 198,
     "selected": 430,
     "candidates": 7533,
     "free": 415,
     "best": {
-      "value": 48121.48333333331,
+      "value": 80.2771745930241,
       "cost": 9985,
       "size": 0,
       "feasible": true
     },
-    "initial": 48121.48333333331,
+    "initial": 80.2771745930241,
     "greedy": {
-      "value": 48059.11666666665,
+      "value": 80.17313333240656,
       "cost": 9983,
       "size": 0
     },
@@ -96,6 +123,31 @@
       "freeExcluded": 0,
       "zeroValue": 14059,
       "duplicates": 0
+    }
+  },
+  {
+    "objective": "combined",
+    "weights": {
+      "satisfaction": 5,
+      "positive": 5,
+      "playtime": 5
+    },
+    "normalization": {
+      "positive": 7642084,
+      "playtime": 359665
+    },
+    "selected": 2727,
+    "candidates": 21592,
+    "best": {
+      "value": 7165.581823188699,
+      "cost": 9998,
+      "size": 0,
+      "feasible": true
+    },
+    "greedy": {
+      "value": 7166.323433268417,
+      "cost": 9998,
+      "size": 0
     }
   }
 ]
